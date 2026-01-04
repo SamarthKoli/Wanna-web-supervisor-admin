@@ -2,26 +2,34 @@ import React, { useEffect, useState } from 'react';
 import './AdminApproval.css';
 
 const AdminApproval = () => {
-    const [pendingUsers, setPendingUsers] = useState([]); // Initialized as an array
+    const [pendingUsers, setPendingUsers] = useState([]);
     const [message, setMessage] = useState('');
 
-    // 1. Fetch pending requests on load
     useEffect(() => {
         fetchPending();
     }, []);
 
     const fetchPending = async () => {
         try {
-            // Updated URL to match your backend app.use('/user-management', ...)
-            const response = await fetch('http://localhost:3000/user-management/pending');
+            // 1. Retrieve the token from localStorage
+            const token = localStorage.getItem('token');
+
+            const response = await fetch('http://localhost:3000/user-management/pending', {
+                method: 'GET',
+                headers: {
+                    // 2. Add the Authorization Header
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
             const data = await response.json();
 
-            // SAFETY CHECK: Ensure data is an array before setting state
             if (Array.isArray(data)) {
                 setPendingUsers(data);
             } else {
                 console.error("Expected array but received:", data);
-                setPendingUsers([]); // Fallback to empty array to prevent .map() crash
+                setPendingUsers([]);
             }
         } catch (err) {
             console.error("Failed to fetch pending users:", err);
@@ -29,18 +37,22 @@ const AdminApproval = () => {
         }
     };
 
-    // 2. Handle Approval
     const handleApprove = async (userId) => {
         try {
-            // Updated URL to match your backend mount point
+            const token = localStorage.getItem('token');
+
             const response = await fetch(`http://localhost:3000/user-management/approve/${userId}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 
+                    // 3. Add the Authorization Header here as well
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json' 
+                }
             });
 
             if (response.ok) {
                 setMessage("Supervisor approved successfully!");
-                fetchPending(); // Refresh the list
+                fetchPending(); 
             } else {
                 const errorData = await response.json();
                 console.error("Approval failed:", errorData.message);
@@ -64,7 +76,6 @@ const AdminApproval = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {/* Only attempts to map if pendingUsers is a valid array */}
                     {pendingUsers.length > 0 ? (
                         pendingUsers.map(user => (
                             <tr key={user._id}>

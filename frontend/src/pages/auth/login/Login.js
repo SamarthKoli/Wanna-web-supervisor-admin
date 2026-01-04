@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../../../firebase/firebaseConfig';
-import { 
-    signInWithEmailAndPassword, 
-    signOut, 
-    sendPasswordResetEmail 
-} from 'firebase/auth'; 
+import {
+    signInWithEmailAndPassword,
+    signOut,
+    sendPasswordResetEmail
+} from 'firebase/auth';
 import './Login.css';
 
 const Login = () => {
@@ -54,18 +54,18 @@ const Login = () => {
             const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
             const user = userCredential.user;
 
-            // 2. Fetch Approval and Role Status from MongoDB
-            // We fetch this FIRST so we know if the user is an Admin
+            // 2. Fetch Approval and Role Status from your new Backend /status endpoint
             const response = await fetch(`http://localhost:3000/auth/status/${user.uid}`);
-            
+
             if (!response.ok) {
-                throw new Error("Could not verify account status with server.");
+                // IMPROVED: Gets the specific error from your backend logic
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Could not verify account status with server.");
             }
 
             const data = await response.json();
 
-            // 3. Logic Check: Allow Admin to skip verification
-            // Supervisors MUST be verified; Admins can skip it.
+            // 3. Logic Check: Verify email (Admins can skip)
             const isVerified = user.emailVerified || data.role === 'admin';
 
             if (!isVerified) {
@@ -75,21 +75,23 @@ const Login = () => {
                 return;
             }
 
-            // 4. Validate Role and Approval
+            // 4. Validate Approval Status from MongoDB
             if (data.isApproved) {
                 const token = await user.getIdToken();
+
                 localStorage.setItem('token', token);
                 localStorage.setItem('role', data.role);
                 localStorage.setItem('isApproved', 'true');
+                // IMPROVED: Stores UID for use in other components
+                localStorage.setItem('uid', user.uid);
 
-                // Redirect based on role
                 if (data.role === 'admin') {
-                    navigate('/admin/approval'); // Matches your updated routing
+                    navigate('/admin/approval');
                 } else {
-                    navigate('/supervisor/dashboard'); // Matches your updated routing
+                    navigate('/supervisor/dashboard');
                 }
             } else {
-                // Not approved yet: Force logout and show message
+                // Force logout if not approved to clear Firebase session
                 await signOut(auth);
                 setError('Your account is awaiting Admin approval.');
             }
@@ -97,18 +99,17 @@ const Login = () => {
         } catch (err) {
             setError('Login failed: ' + err.message);
             console.error('Login Error:', err.message);
-            await signOut(auth); 
+            await signOut(auth);
         } finally {
             setLoading(false);
         }
     };
-
     return (
         <div className="login-container">
             <div className="image-section">
-                <img 
-                    src={require("../../../assets/Login.png")} 
-                    alt="Background" 
+                <img
+                    src={require("../../../assets/Login.png")}
+                    alt="Background"
                     className="full-background-image"
                 />
             </div>
@@ -152,9 +153,9 @@ const Login = () => {
                     </form>
 
                     <div className="login-footer" style={{ marginTop: '15px', textAlign: 'center' }}>
-                        <button 
-                            type="button" 
-                            className="link-button" 
+                        <button
+                            type="button"
+                            className="link-button"
                             onClick={handleForgotPassword}
                             style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline' }}
                         >
