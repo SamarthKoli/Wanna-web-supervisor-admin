@@ -1,0 +1,28 @@
+/* Header.css */
+
+.navbar-nav .nav-link {
+    color: #ffffff;
+  }
+  
+  .navbar-brand {
+    color: #ffffff;
+  }
+  
+  .right-nav {
+    margin-left: auto;
+  }
+  .navbar-brand img {
+    margin-right: 10px;
+  }
+  .full-page-bg {
+    height: 100vh; /* Full viewport height */
+    width: 100%; /* Full width of the viewport */
+    background-image: url('../../assets/Signup.png'); /* Ensure the path is correct */
+     /* Ensure the image covers the entire viewport */
+    background-repeat: no-repeat; /* Prevent tiling */
+    background-position: center; /* Center the image */
+    background-color: #e2d5d5; /* Light gray fallback color */
+  }
+  
+  
+  
