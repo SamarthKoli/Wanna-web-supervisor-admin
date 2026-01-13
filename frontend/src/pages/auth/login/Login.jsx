@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { auth } from '../../../firebase/firebaseConfig';
+import { auth } from '../../../firebase/firebaseConfig.js';
+import loginImg from '../../../assets/Login.png'
 import {
-    signInWithEmailAndPassword,
-    signOut,
-    sendPasswordResetEmail
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail
 } from 'firebase/auth';
+
 import './Login.css';
+
 
 const Login = () => {
     const navigate = useNavigate();
@@ -108,7 +111,7 @@ const Login = () => {
         <div className="login-container">
             <div className="image-section">
                 <img
-                    src={require("../../../assets/Login.png")}
+                   src={loginImg} 
                     alt="Background"
                     className="full-background-image"
                 />

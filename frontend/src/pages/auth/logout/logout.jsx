@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import { auth } from '../../../firebase/firebaseConfig'; // Import Firebase auth configuration
-import { signOut } from 'firebase/auth'; // Import Firebase signOut method
-import './logout.css'; // Import the CSS file
+import { useNavigate } from 'react-router-dom';
+
+import { auth } from '../../../firebase/firebaseConfig.js';
+import { signOut } from 'firebase/auth';
+
+import './logout.css';
 
 const LogoutPage = () => {
     const navigate = useNavigate(); // Initialize useNavigate

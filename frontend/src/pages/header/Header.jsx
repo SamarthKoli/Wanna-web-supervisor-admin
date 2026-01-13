@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import './Header.css';
-import logo from '../../assets/logo.png'; 
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Container, Nav, Navbar } from "react-bootstrap";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
+
 
 const Header = () => {
   const location = useLocation();

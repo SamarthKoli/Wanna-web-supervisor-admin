@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../../../firebase/firebaseConfig';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+
+import { auth } from '../../../firebase/firebaseConfig.js';
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification
+} from 'firebase/auth';
+
 import PasswordStrengthBar from 'react-password-strength-bar';
 import './Signup.css';
 
+import signupimage from "../../../assets/Signup.png";
 const Signup = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -77,7 +83,7 @@ const Signup = () => {
     return (
         <div className="signup-container">
             <div className="image-section">
-                <img src={require("../../../assets/Signup.png")} 
+                <img src={signupimage} 
                     alt="Background" 
                     className="Signup-image" />
             </div>

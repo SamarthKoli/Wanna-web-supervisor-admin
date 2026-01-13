@@ -9,7 +9,7 @@ const createAdminAccount = async () => {
             const admin = new User({
                 name: "Admin",
                 email: "2305mayurigaikwad@gmail.com",
-                firebaseUid: "dSuDiwZFPQRw7eRgirTHkvLyG2O2", // Ensure this field is present
+                firebaseUid: "2NbZXw5iOoawxjuYhP64uhwfLkP2", // Ensure this field is present
                 role: "admin",
                 isApproved: true // Admin is pre-approved
             });

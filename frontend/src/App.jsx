@@ -1,16 +1,21 @@
 import './App.css';
 import { Route, Routes, Navigate } from 'react-router-dom';
-import Header from './pages/header/Header';
-import Signup from './pages/auth/signup/Signup';
-import Login from './pages/auth/login/Login';
-import Dashboard from './pages/dashboard/Dashboard';
-import Currentstatus from './pages/Currentstatus/CurrentStatusf';
-import Home from './pages/Home/Home';
-import History from './pages/History/Historyf';
-import ProtectedRoute from './pages/components/ProtectedRoute'; 
-import LogoutPage from './pages/auth/logout/logout'; 
-import AdminApproval from './pages/admin/AdminApproval';
-import SupervisorDashboard from './pages/supervisor/SupervisorDashboard';
+
+import Header from './pages/header/Header.jsx';
+
+import Signup from './pages/auth/signup/Signup.jsx';
+import Login from './pages/auth/login/Login.jsx';
+import LogoutPage from './pages/auth/logout/logout.jsx';
+
+import Dashboard from './pages/dashboard/Dashboard.jsx';
+import SupervisorDashboard from './pages/supervisor/SupervisorDashboard.jsx';
+import AdminApproval from './pages/admin/AdminApproval.jsx';
+
+import Currentstatus from './pages/Currentstatus/CurrentStatusf.jsx';
+import History from './pages/History/Historyf.jsx';
+import Home from './pages/Home/Home.jsx';
+
+import ProtectedRoute from './pages/components/ProtectedRoute.jsx';
 
 function App() {
   return (

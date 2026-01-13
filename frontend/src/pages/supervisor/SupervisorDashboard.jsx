@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase/firebaseConfig';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import Map from '../dashboard/Map';
+import Map from '../dashboard/Map.jsx';
 import './SupervisorDashboard.css';
 
 const SupervisorDashboard = () => {
