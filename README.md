@@ -47,7 +47,7 @@ cd Wanna-web-supervisor-admin
 cd backend
 npm install
 # Note: You may need to create a .env file for database and JWT secrets
-npm start
+npm run dev
 
 ## Setup Frontend
 Open a second terminal window:
