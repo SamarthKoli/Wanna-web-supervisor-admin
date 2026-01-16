@@ -1,143 +1,180 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { auth } from '../../../firebase/firebaseConfig.js';
+import { auth } from "../../../firebase/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
-  sendEmailVerification
-} from 'firebase/auth';
+  sendEmailVerification,
+} from "firebase/auth";
 
-import PasswordStrengthBar from 'react-password-strength-bar';
-import './Signup.css';
+import PasswordStrengthBar from "react-password-strength-bar";
+import "./Signup.css";
 
 import signupimage from "../../../assets/Signup.png";
+
 const Signup = () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: ''
-    });
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    region: "",
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-        try {
-            const { email, password, name } = formData;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-            // 1. Create the user in Firebase Auth
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-            // 2. Send verification email
-            await sendEmailVerification(user);
+    try {
+      const { name, email, password, region } = formData;
 
-            // 3. Sync the data to MongoDB - URL updated to match backend mount
-            const response = await fetch("http://localhost:3000/user/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    name: name,
-                    email: email,
-                    firebaseUid: user.uid // Backend defaults to 'supervisor' & 'isApproved: false'
-                }),
-            });
+      // 1️⃣ Create Firebase Auth account
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to sync with database");
-            }
+      const user = userCredential.user;
 
-            alert('Signup successful! Please check your email for a verification link. An Admin must approve your account before you can log in.');
-            navigate('/login');  
+      // 2️⃣ Send email verification
+      await sendEmailVerification(user);
 
-        } catch (err) {
-            if (err.code === 'auth/weak-password') {
-                setError('The password is too weak.');
-            } else if (err.code === 'auth/email-already-in-use') {
-                setError('This email is already registered.');
-            } else {
-                setError(err.message);
-            }
-            console.error("Signup Error:", err.message);
-        } finally {
-            setLoading(false);
-            setFormData({ name: '', email: '', password: '' });
+      // 3️⃣ Save supervisor in MongoDB
+      const response = await fetch(
+        "http://localhost:3000/supervisor/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            region,
+            firebaseUid: user.uid,
+          }),
         }
-    };
+      );
 
-    return (
-        <div className="signup-container">
-            <div className="image-section">
-                <img src={signupimage} 
-                    alt="Background" 
-                    className="Signup-image" />
-            </div>
-            <div className="form-section">
-                <h2 className="heading">Supervisor Sign Up</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name" className="label">Full Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter your name"
-                            className="input"
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="email" className="label">Work Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter your email"
-                            className="input"
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="password" className="label">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Create a password"
-                            className="input"
-                            required
-                        />
-                        <PasswordStrengthBar password={formData.password} style={{ marginTop: '10px' }} />
-                    </div>
-                    {error && <div className="error" style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-                    <button type="submit" className="button" disabled={loading}>
-                        {loading ? 'Processing...' : 'Register as Supervisor'}
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.warn("MongoDB sync failed, but Firebase signup succeeded");
+      }
+
+      alert(
+        "Signup successful! Please verify your email. Admin approval is required before login."
+      );
+
+      navigate("/login");
+    } catch (err) {
+      console.error("Signup Error:", err);
+
+      if (err.code === "auth/weak-password") {
+        setError("Password is too weak.");
+      } else if (err.code === "auth/email-already-in-use") {
+        setError("Email already registered.");
+      } else {
+        setError(err.message);
+      }
+    } finally {
+      setLoading(false);
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        region: "",
+      });
+    }
+  };
+
+  return (
+    <div className="signup-container">
+      <div className="image-section">
+        <img src={signupimage} alt="Signup" className="Signup-image" />
+      </div>
+
+      <div className="form-section">
+        <h2 className="heading">Supervisor Sign Up</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="label">Full Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Work Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Region</label>
+            <input
+              type="text"
+              name="region"
+              value={formData.region}
+              onChange={handleChange}
+              placeholder="Enter region (e.g. Solapur)"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Create a password"
+              required
+            />
+            <PasswordStrengthBar
+              password={formData.password}
+              style={{ marginTop: "10px" }}
+            />
+          </div>
+
+          {error && (
+            <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
+          )}
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Processing..." : "Register as Supervisor"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default Signup;
