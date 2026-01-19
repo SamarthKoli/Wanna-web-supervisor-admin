@@ -6,6 +6,23 @@ import React, {
   forwardRef,
 } from "react";
 
+/**
+ * INDIA DEFAULT CENTER
+ * ⚠️ Mappls uses [lng, lat]
+ */
+const INDIA_CENTER = {
+  lat: 20.5937,
+  lng: 78.9629,
+};
+
+/**
+ * INDIA BOUNDS (lng, lat)
+ */
+const INDIA_BOUNDS = [
+  [68.0, 6.0],   // South-West (lng, lat)
+  [97.0, 36.0],  // North-East (lng, lat)
+];
+
 const Map = forwardRef(({ alerts = [] }, ref) => {
   const mapRef = useRef(null);
   const markersRef = useRef({});
@@ -13,13 +30,12 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   // =================================================
-  // Expose method to parent (Locate button)
+  // Expose Locate function to parent
   // =================================================
   useImperativeHandle(ref, () => ({
     focusLocation(lat, lng) {
       if (!mapRef.current || !isMapLoaded) return;
-
-      mapRef.current.setCenter([lng, lat]); // lng, lat
+      mapRef.current.setCenter([lng, lat]); // ✅ lng, lat
       mapRef.current.setZoom(16);
     },
   }));
@@ -38,17 +54,15 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
 
       try {
         mapRef.current = new window.mappls.Map("map", {
-          center: [20.5937, 78.9629], // India
+          center: [INDIA_CENTER.lng, INDIA_CENTER.lat], // ✅ FIXED
           zoom: 5,
           zoomControl: true,
           mapStyle: "standard_day",
-            maxBounds: [
-                [6.0, 68.0],   // Southwest (India)
-                [36.0, 97.0],   // Northeast (India)
-            ],
 
-            minZoom: 4,
-            maxZoom: 18,
+          // 🔒 INDIA-ONLY VIEW (CORRECT ORDER)
+          maxBounds: INDIA_BOUNDS,
+          minZoom: 4,
+          maxZoom: 18,
         });
 
         mapRef.current.on("load", () => {
@@ -59,7 +73,7 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
       }
     };
 
-    // Required for SDK callback
+    // Required by SDK callback
     window.initMap1 = initializeMap;
 
     if (window.mappls) {
@@ -71,13 +85,15 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
     };
   }, []);
 
-  /* 📍 SYNC MARKERS */
+  // =================================================
+  // Sync SOS Markers
+  // =================================================
   useEffect(() => {
     if (!isMapLoaded || !mapRef.current) return;
 
-    // Remove old markers
-    Object.keys(markersRef.current).forEach(id => {
-      if (!alerts.find(a => a.id === id)) {
+    // Remove stale markers
+    Object.keys(markersRef.current).forEach((id) => {
+      if (!alerts.find((a) => a.id === id)) {
         markersRef.current[id].setMap(null);
         delete markersRef.current[id];
 
@@ -88,8 +104,8 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
       }
     });
 
-    // Add new markers
-    alerts.forEach(alert => {
+    // Add new SOS markers
+    alerts.forEach((alert) => {
       if (
         markersRef.current[alert.id] ||
         typeof alert.lat !== "number" ||
@@ -100,15 +116,21 @@ const Map = forwardRef(({ alerts = [] }, ref) => {
 
       const marker = new window.mappls.Marker({
         map: mapRef.current,
-        position: { lat: alert.lat, lng: alert.lng },
+        position: {
+          lng: alert.lng, // ✅ FIXED
+          lat: alert.lat,
+        },
         icon_url: "https://apis.mapmyindia.com/map_v3/1.png",
       });
 
-      // ✅ SHOW NAME ON CLICK
+      // Show victim name on click
       marker.addListener("click", () => {
         new window.mappls.Popup({
           map: mapRef.current,
-          position: { lat: alert.lat, lng: alert.lng },
+          position: {
+            lng: alert.lng, // ✅ FIXED
+            lat: alert.lat,
+          },
           content: `
             <div style="font-size:14px; line-height:1.4">
               <strong>${alert.userName || "Unknown Victim"}</strong><br/>
