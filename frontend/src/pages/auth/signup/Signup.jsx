@@ -102,16 +102,23 @@ const Signup = () => {
     }
   };
 
-  return (
+ return (
     <div className="signup-container">
       <div className="image-section">
-        <img src={signupimage} alt="Signup" className="Signup-image" />
+        <img src={signupimage} alt="Supervisor Illustration" className="Signup-image" />
       </div>
 
       <div className="form-section">
-        <h2 className="heading">Supervisor Sign Up</h2>
+        <h2 className="heading">Create Supervisor Account</h2>
+        <p style={{ color: '#64748b', marginBottom: '25px', fontSize: '0.95rem' }}>
+            Join our command network to start managing regional emergencies.
+        </p>
 
         <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="error-msg">{error}</div>
+          )}
+
           <div className="form-group">
             <label className="label">Full Name</label>
             <input
@@ -119,7 +126,7 @@ const Signup = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Enter your name"
+              placeholder="Name"
               required
             />
           </div>
@@ -131,46 +138,47 @@ const Signup = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter your email"
+              placeholder="name@company.com"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="label">Region</label>
+            <label className="label">Region Assignment</label>
             <input
               type="text"
               name="region"
               value={formData.region}
               onChange={handleChange}
-              placeholder="Enter region (e.g. Solapur)"
+              placeholder="e.g. Solapur, Maharashtra"
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="label">Password</label>
+            <label className="label">Security Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Create a password"
+              placeholder="••••••••"
               required
             />
             <PasswordStrengthBar
               password={formData.password}
-              style={{ marginTop: "10px" }}
+              style={{ marginTop: "12px" }}
+              barColors={['#e2e8f0', '#ef4444', '#f59e0b', '#3b82f6', '#10b981']}
             />
           </div>
 
-          {error && (
-            <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
-          )}
-
           <button type="submit" disabled={loading}>
-            {loading ? "Processing..." : "Register as Supervisor"}
+            {loading ? "Establishing Account..." : "Register as Supervisor"}
           </button>
+          
+          <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.85rem', color: '#64748b' }}>
+            Already have an account? <a href="/login" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'none' }}>Log In</a>
+          </p>
         </form>
       </div>
     </div>
